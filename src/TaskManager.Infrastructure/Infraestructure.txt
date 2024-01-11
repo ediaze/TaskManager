@@ -1,0 +1,76 @@
+﻿===============================================================================
+Package Manager Console
+-------------------------------------------------------------------------------
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.InMemory
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
+===============================================================================
+.
+===============================================================================
+Package Manager Console
+-------------------------------------------------------------------------------
+Add-Migration UpdateIdToInt
+Update-Database
+===============================================================================
+.
+===============================================================================
+Terminal
+-------------------------------------------------------------------------------
+dotnet tool install --global dotnet-ef
+dotnet tool update --global dotnet-ef
+
+dotnet nuget locals all --clear
+
+# https://dotnet.microsoft.com/en-us/download
+dotnet --list-sdks
+dotnet new globaljson --sdk-version X.X.X
+
+dotnet ef migrations add <MigrationName>
+e.g.: dotnet ef migrations add InitialCreate   # Adding a New Migration
+      dotnet ef migrations add UpdateIdToGuid
+
+dotnet ef database update                      # Updating the Database
+
+dotnet ef migrations remove                    # Removing the Last Migration
+dotnet ef migrations list                      # List Existing Migrations
+dotnet ef database drop                        # Dropping the Database
+dotnet ef migrations script                    # Generating a SQL Script from Migrations
+dotnet ef --help
+
+# To run Entity Framework Core commands in a solution with multiple projects,
+# Navigate to Your Solution Directory: Open a terminal and navigate to the root 
+# of your solution where the .sln file is located.
+
+dotnet ef migrations add InitialCreate --startup-project TaskManager.API --project TaskManager.Infrastructure
+
+dotnet ef database update --startup-project TaskManager.API --project TaskManager.Infrastructure
+
+dotnet ef migrations remove --startup-project TaskManager.API --project TaskManager.Infrastructure
+===============================================================================
+.
+===============================================================================
+dotnet ef migrations add AddIdentity --startup-project ../TaskManager.API --project ../TaskManager.Infrastructure
+dotnet ef database update --startup-project ../TaskManager.API --project ../TaskManager.Infrastructure
+===============================================================================
+.
+-------------------------------------------------------------------------------
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+
+namespace TaskManager.Infrastructure.Data
+{
+    public class TaskManagerDbContextFactory : IDesignTimeDbContextFactory<TaskManagerDbContext>
+    {
+        public TaskManagerDbContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<TaskManagerDbContext>();
+            optionsBuilder.UseSqlServer("Your Connection String");
+
+            return new TaskManagerDbContext(optionsBuilder.Options);
+        }
+    }
+}
+-------------------------------------------------------------------------------
+
+127.0. 0.1,1433
