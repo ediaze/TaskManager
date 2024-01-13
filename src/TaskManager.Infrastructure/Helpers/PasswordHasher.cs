@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace TaskManager.Application.Helpers
+namespace TaskManager.Infrastructure.Helpers
 {
     public static class PasswordHasher
     {
@@ -48,20 +48,44 @@ namespace TaskManager.Application.Helpers
 
         public static bool ValidatePassword(string password, out string errorMessage)
         {
-            var validations = new List<KeyValuePair<bool, string>>
+            if (string.IsNullOrEmpty(password))
             {
-                new (string.IsNullOrWhiteSpace(password), "Password cannot be empty."),
-                new (password.Length < 8 || password.Length > 100, "Password must be between 8 and 100 characters."),
-                new (!password.Any(char.IsLower), "Password must contain at least one lowercase letter."),
-                new (!password.Any(char.IsUpper), "Password must contain at least one uppercase letter."),
-                new (!password.Any(char.IsDigit), "Password must contain at least one number."),
-                new (!password.Any(ch => !char.IsLetterOrDigit(ch)), "Password must contain at least one special character.")
-            };
+                errorMessage = "Password cannot be null or empty.";
+                return false;
+            }
 
-            var firstIssue = validations.FirstOrDefault(x => x.Key);
+            bool hasLower = password.Any(char.IsLower);
+            bool hasUpper = password.Any(char.IsUpper);
+            bool hasDigit = password.Any(char.IsDigit);
+            bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
 
-            errorMessage = (firstIssue.Key) ? firstIssue.Value : string.Empty;
-            return string.IsNullOrEmpty(errorMessage);
+            if (password.Length < 8 || password.Length > 100)
+            {
+                errorMessage = "Password must be between 8 and 100 characters.";
+            }
+            else if (!hasLower)
+            {
+                errorMessage = "Password must contain at least one lowercase letter.";
+            }
+            else if (!hasUpper)
+            {
+                errorMessage = "Password must contain at least one uppercase letter.";
+            }
+            else if (!hasDigit)
+            {
+                errorMessage = "Password must contain at least one number.";
+            }
+            else if (!hasSpecial)
+            {
+                errorMessage = "Password must contain at least one special character.";
+            }
+            else
+            {
+                errorMessage = string.Empty; // All validations passed
+                return true;
+            }
+
+            return false; // Validation failed
         }
     }
 }

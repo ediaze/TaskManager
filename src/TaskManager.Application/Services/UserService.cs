@@ -6,10 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using TaskManager.Application.Dtos;
 using TaskManager.Application.Exceptions;
-using TaskManager.Application.Helpers;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
+using TaskManager.Infrastructure.Helpers;
 using TaskManager.Infrastructure.Interfaces;
 
 namespace TaskManager.Application.Services
