@@ -26,7 +26,10 @@ namespace TaskManager.API
             }
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
             app.UseAuthorization();
+            
             app.MapControllers();
 
             var logger = app.Services.GetRequiredService<ILogger<Program>>();

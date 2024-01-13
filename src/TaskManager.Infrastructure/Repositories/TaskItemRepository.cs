@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManager.Domain.Entities;
 using TaskManager.Infrastructure.Data;
+using TaskManager.Infrastructure.Interfaces;
 
 namespace TaskManager.Infrastructure.Repositories
 {
@@ -8,29 +9,36 @@ namespace TaskManager.Infrastructure.Repositories
     {
         private readonly TaskManagerDbContext _context = context;
 
-        public async Task<TaskItem?> GetByIdAsync(Guid id)
+        public async Task<TaskItem?> AddAsync(TaskItem entry)
         {
-            TaskItem? taskItem = await _context.TaskItems.FindAsync(id);
-            return taskItem;
+            entry.Id = Guid.NewGuid();
+            _context.TaskItems.Add(entry);
+            await _context.SaveChangesAsync();
+            return entry;
+        }
+
+        public async Task<int> DeleteAsync(TaskItem entry)
+        {
+            _context.TaskItems.Remove(entry);
+            var rowsAffected = await _context.SaveChangesAsync();
+            return rowsAffected;
         }
 
         public async Task<IList<TaskItem>?> GetAllAsync()
         {
-            IList<TaskItem>? taskItems = await _context.TaskItems.ToListAsync();
-            return taskItems;
+            IList<TaskItem>? entries = await _context.TaskItems.ToListAsync();
+            return entries;
         }
 
-        public async Task<TaskItem?> AddAsync(TaskItem taskItem)
+        public async Task<TaskItem?> GetByIdAsync(Guid id)
         {
-            taskItem.Id = Guid.NewGuid();
-            _context.TaskItems.Add(taskItem);
-            await _context.SaveChangesAsync();
-            return taskItem;
+            TaskItem? entry = await _context.TaskItems.FindAsync(id);
+            return entry;
         }
 
-        public async Task<int?> UpdateAsync(TaskItem taskItem)
+        public async Task<int?> UpdateAsync(TaskItem entry)
         {
-            _context.Entry(taskItem).State = EntityState.Modified;
+            _context.Entry(entry).State = EntityState.Modified;
 
             try
             {
@@ -39,7 +47,7 @@ namespace TaskManager.Infrastructure.Repositories
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TaskItemExists(taskItem.Id))
+                if (!await EntityExists(entry.Id))
                 {
                     return null;
                 }
@@ -50,16 +58,9 @@ namespace TaskManager.Infrastructure.Repositories
             }
         }
 
-        public async Task<int> DeleteAsync(TaskItem taskItem)
+        private async Task<bool> EntityExists(Guid id)
         {
-            _context.TaskItems.Remove(taskItem);
-            var rowsAffected = await _context.SaveChangesAsync();
-            return rowsAffected;
-        }
-
-        private bool TaskItemExists(Guid id)
-        {
-            return _context.TaskItems.Any(e => e.Id == id);
+            return await _context.TaskItems.AnyAsync(e => e.Id == id);
         }
     }
 }

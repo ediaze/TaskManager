@@ -1,31 +1,32 @@
 ﻿using System.Net;
+using TaskManager.Application.Dtos;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Exceptions;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
-using TaskManager.Infrastructure.Repositories;
+using TaskManager.Infrastructure.Interfaces;
 
 namespace TaskManager.Application.Services
 {
-    public class TaskItemService(ITaskItemRepository repository): ITaskItemService
+    public class TaskService(ITaskItemRepository repository): ITaskService
     {
         private readonly ITaskItemRepository _repository = repository;
 
         public async Task<TaskItemDto?> GetByIdAsync(Guid id)
         {
             var taskItem = await _repository.GetByIdAsync(id) ?? throw new ApiException(HttpStatusCode.NotFound);
-            return TaskItemMapper.ConvertToDto(taskItem);
+            return TaskMapper.ConvertToDto(taskItem);
         }
 
         public async Task<IList<TaskItemDto>?> GetAllAsync()
         {
             var taskItems = await _repository.GetAllAsync() ?? throw new ApiException(HttpStatusCode.NotFound);
-            var items = taskItems.Select(TaskItemMapper.ConvertToDto).ToList();
+            var items = taskItems.Select(TaskMapper.ConvertToDto).ToList();
             return (IList<TaskItemDto>)items;
         }
 
-        public async Task<TaskItemDto?> CreateAsync(CreateTaskItemDto taskDto)
+        public async Task<TaskItemDto?> AddAsync(TaskItemCreationDto taskDto)
         {
             if(taskDto == null)
             {
@@ -41,7 +42,7 @@ namespace TaskManager.Application.Services
             };
 
             var task = await _repository.AddAsync(taskItem) ?? throw new ApiException(HttpStatusCode.NotFound);
-            return TaskItemMapper.ConvertToDto(task);
+            return TaskMapper.ConvertToDto(task);
         }
 
         public async Task<int?> UpdateAsync(Guid id, TaskItemDto taskDto)

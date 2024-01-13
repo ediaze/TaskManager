@@ -1,6 +1,6 @@
-﻿namespace TaskManager.Application.DTOs
+﻿namespace TaskManager.Application.Dtos
 {
-    public class CreateTaskItemDto
+    public class TaskItemCreationDto
     {
         public required string Name { get; set; }
         public string? Description { get; set; }

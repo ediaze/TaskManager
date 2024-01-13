@@ -3,7 +3,7 @@ using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mapping
 {
-    public static class TaskItemMapper
+    public static class TaskMapper
     {
         public static TaskItemDto? ConvertToDto(TaskItem taskItem)
         {

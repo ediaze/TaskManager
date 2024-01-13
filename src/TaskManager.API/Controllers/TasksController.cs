@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TaskManager.Application.Dtos;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.API.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("TaskManager/[controller]")]
-    public class TasksController(ITaskItemService service) : ControllerBase
+    [Route("api/[controller]")]
+    public class TasksController(ITaskService service) : ControllerBase
     {
-        private readonly ITaskItemService _service = service;
+        private readonly ITaskService _service = service;
 
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetAllTaskItems()
@@ -29,9 +32,9 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TaskItemDto>> AddTaskItem([FromBody] CreateTaskItemDto taskItem)
+        public async Task<ActionResult<TaskItemDto>> AddTaskItem([FromBody] TaskItemCreationDto taskItem)
         {
-            var todoItem = await _service.CreateAsync(taskItem);
+            var todoItem = await _service.AddAsync(taskItem);
             return CreatedAtAction(
                 nameof(GetTaskItem),
                 new { id = todoItem?.Id },
